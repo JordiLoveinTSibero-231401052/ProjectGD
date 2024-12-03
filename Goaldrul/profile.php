@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);  
 error_reporting(E_ALL);  
 
-$dsn = 'pgsql:host=localhost;port=5432;dbname=tes';
+$dsn = 'pgsql:host=localhost;port=5432;dbname=tes1';
 $user = 'postgres';
 $password = '123';
 
@@ -124,30 +124,39 @@ if (isset($_POST['update_social_links'])) {
     }
     // $stmt->close();
 }
-
 if (isset($_POST['update_profile'])) {
-    $target_dir = "uploads/";
-
-    $imageFileType = strtolower(pathinfo($_FILES["profile_photo"]["name"], PATHINFO_EXTENSION));
-
-    if ($_FILES["profile_photo"]["size"] > 500000) {
-        die("<script>alert('File is too large.');</script>");
-    }
-
-    $allowed_types = ["jpg", "jpeg", "png", "gif"];
-    if (!in_array($imageFileType, $allowed_types)) {
-        die("<script>alert('Only JPG, JPEG, PNG, and GIF files are allowed.');</script>");
-    }
-
-    $unique_filename = uniqid('profile_', true) . '.' . $imageFileType;
-    $target_file = $target_dir . $unique_filename;
-
-    if (move_uploaded_file($_FILES["profile_photo"]["tmp_name"], $target_file)) {
+    if (isset($_FILES["profile_photo"]) && $_FILES["profile_photo"]["error"] == 0) {
+        $target_dir = "uploads/";
+        $imageFileType = strtolower(pathinfo($_FILES["profile_photo"]["name"], PATHINFO_EXTENSION));
         
-        $stmt = $pdo->prepare("UPDATE profiles SET profile_photo = ? WHERE user_id = ?");
-        $stmt->execute([$target_file, $user_id]);
-    }else {
-        echo "<script>alert('Failed to upload file.');</script>";
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0755, true); // Membuat folder jika belum ada
+        }
+
+        if ($_FILES["profile_photo"]["size"] > 500000) {
+            die("<script>alert('File is too large.');</script>");
+        }
+
+        $allowed_types = ["jpg", "jpeg", "png", "gif"];
+        if (!in_array($imageFileType, $allowed_types)) {
+            die("<script>alert('Only JPG, JPEG, PNG, and GIF files are allowed.');</script>");
+        }
+
+        $unique_filename = uniqid('profile_', true) . '.' . $imageFileType;
+        $target_file = $target_dir . $unique_filename;
+
+        if (move_uploaded_file($_FILES["profile_photo"]["tmp_name"], $target_file)) {
+            $stmt = $pdo->prepare("UPDATE profiles SET profile_photo = ? WHERE user_id = ?");
+            if ($stmt->execute([$target_file, $user_id])) {
+                echo "<script>alert('Profile photo updated successfully.');</script>";
+            } else {
+                echo "<script>alert('Failed to update database.');</script>";
+            }
+        } else {
+            echo "<script>alert('Failed to upload file.');</script>";
+        }
+    } else {
+        echo "<script>alert('No file uploaded or an error occurred.');</script>";
     }
 }
 
