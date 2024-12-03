@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);  
 error_reporting(E_ALL);  
 
-$dsn = 'pgsql:host=localhost;port=5432;dbname=tes1';
+$dsn = 'pgsql:host=localhost;port=5432;dbname=soccer';
 $user = 'postgres';
 $password = '123';
 
