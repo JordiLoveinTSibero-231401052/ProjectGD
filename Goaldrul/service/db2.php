@@ -1,5 +1,5 @@
 <?php
-    $dsn = 'pgsql:host=localhost;dbname=tes';
+    $dsn = 'pgsql:host=localhost;dbname=soccer';
     $username = 'postgres';
     $password = '123';
     $options = [
